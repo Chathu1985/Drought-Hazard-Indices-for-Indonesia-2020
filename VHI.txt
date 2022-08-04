@@ -9,8 +9,8 @@ var lst = ee.ImageCollection("MODIS/006/MOD11A2")
 var ndvi = ee.ImageCollection("MODIS/006/MOD13A1")
 
 //defining the date ranges
-var NDVIfilt = ndvi.select('NDVI').filterDate('2001-01-01', '2001-01-31').filterBounds(AOI)
-var LSTfilt = lst.select('LST_Day_1km').filterDate('2001-01-01', '2001-01-31').filterBounds(AOI)
+var NDVIfilt = ndvi.select('NDVI').filterDate('yyyy-mm-dd', 'yyyy-mm-dd').filterBounds(AOI)
+var LSTfilt = lst.select('LST_Day_1km').filterDate('yyyy-mm-dd', 'yyyy-mm-dd').filterBounds(AOI)
 
 var NDVI = NDVIfilt.map(function(img){
   return img.multiply(0.0001)
