@@ -1,3 +1,10 @@
+
+//define the boundary
+var AOI: Table users/username/boundary_name
+
+
+//------------SPI_Indonesia_2020-----------------
+
 //giving the date range for long term precipitation
 var startdate = ee.Date.fromYMD(yyyy,mm,dd);
 var enddate = ee.Date.fromYMD(yyyy,mm,dd);
@@ -6,7 +13,6 @@ var enddate = ee.Date.fromYMD(yyyy,mm,dd);
 //importing long term average rainfall data
 var firstimage = ee.ImageCollection('UCSB-CHG/CHIRPS/PENTAD')
   .filterDate(startdate, enddate);
-
 
 
 //importing latest average rainfall data  
