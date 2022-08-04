@@ -6,7 +6,7 @@ var AOI: Table users/username/boundary_name
 
 //import the soil moisture data from the catalog and give the time period
 var soil_moisture = ee.ImageCollection("NASA_USDA/HSL/SMAP10KM_soil_moisture")
-  .filterDate('2020-05-01', '2020-9-30');
+  .filterDate('yyyy-mm-dd', 'yyyy-mm-dd');
 
 //choose a band, ssm/smp...
 soil_moisture = soil_moisture.select('ssm').mean().clip(AOI)
@@ -18,39 +18,11 @@ var soilMoistureVis = {
   palette: ['red', 'yellow', 'white', 'green', 'blue'],
 }
 
- //add the map to the layer
+//add the map to the layer
 Map.addLayer(soil_moisture.clip(AOI), soilMoistureVis, 'Soil Moisture');
 
 //get the mean average of raster values to each hexagon polygon
 var Zonal_SMI = soil_moisture.reduceRegions(AOI, ee.Reducer.mean(), 90)
-//export the zonal data
-Export.table.toDrive({
-collection: Zonal_SMI,
-description:'SMI_Indonesia',
-fileFormat: 'GeoJSON'
-});
-
-/*
-//option for more than 20000 local boundary polygons; create a polygon around the area
-// Export the image, specifying scale and region.
-Export.image.toDrive({
-  image: soil_moisture.clip(AOI),
-  description: 'soilmoisture_Indonesiatiff',
-  scale: 90,
-  maxPixels: 1e10,
-  region: AOI
-});
-*/
-
-
-
-
-
-
-
-
-
-
 //export the zonal data
 Export.table.toDrive({
 collection: Zonal_SMI,
