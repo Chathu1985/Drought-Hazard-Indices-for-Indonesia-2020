@@ -1,3 +1,9 @@
+//define the boundary
+var AOI: Table users/username/boundary_name
+
+
+//------------VHI_Indonesia_2020-----------------
+
 //importing lst and ndvi images
 var lst = ee.ImageCollection("MODIS/006/MOD11A2")
 var ndvi = ee.ImageCollection("MODIS/006/MOD13A1")
@@ -81,7 +87,3 @@ Export.image.toDrive({
   region: AOI
 });
 */
-
-
-
-
