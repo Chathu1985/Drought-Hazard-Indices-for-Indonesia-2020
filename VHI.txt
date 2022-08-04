@@ -34,7 +34,8 @@ var VCI = NDVI.map(function(image){
         .copyProperties(image, ['system:time_start'])
         .set('date', image.date().format('YYYY_MM_dd'))
 })
-  
+
+//calculating TCI using map functions  
 var TCI = LST.map(function(image){
   var Ymin = LST.reduce(ee.Reducer.min())
   var Ymax =LST.reduce(ee.Reducer.max()) 
