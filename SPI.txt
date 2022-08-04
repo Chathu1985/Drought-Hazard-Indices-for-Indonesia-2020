@@ -1,0 +1,58 @@
+//giving the date range for long term precipitation
+var startdate = ee.Date.fromYMD(yyyy,mm,dd);
+var enddate = ee.Date.fromYMD(yyyy,mm,dd);
+
+
+//importing long term average rainfall data
+var firstimage = ee.ImageCollection('UCSB-CHG/CHIRPS/PENTAD')
+  .filterDate(startdate, enddate);
+
+
+
+//importing latest average rainfall data  
+var latestimage = ee.ImageCollection('UCSB-CHG/CHIRPS/PENTAD')
+  .filterDate('yyyy-mm-dd', 'yyyy-mm-dd');
+
+
+//calculating average and standard daviation using band 'precipitation' for long term average data
+var mean_prep = firstimage.select('precipitation').mean().clip(AOI);
+var std_prep = firstimage.reduce(ee.Reducer.stdDev()).clip(AOI);
+
+//select the band 'precipitation' latest precipitation data
+var latest_prep = latestimage.select('precipitation').mean().clip(AOI);
+
+//calculating SPI using mean and std
+var anomaly = latest_prep.divide(mean_prep).multiply(100);
+var SPI = latest_prep.subtract(mean_prep).divide(std_prep);
+
+//giving a visualize parameters
+var SPI_colors = ['red', 'yellow', 'white', 'green', 'blue'];
+var SPI_VIZ = {min:-2, max:2, palette: SPI_colors};
+ 
+//adding the map to the layer
+//Map.addLayer(SPI, SPI_VIZ, 'SPI');
+
+//get the mean average of raster values to each hexagon polygon
+var Zonal_SPI = SPI.reduceRegions(AOI, ee.Reducer.mean(), 90)
+
+
+// Export the FeatureCollection to a shp file.
+Export.table.toDrive({
+collection: Zonal_SPI,
+description:'SPI_Indonesia',
+fileFormat: 'GeoJSON'
+});
+
+/*
+//option for more than 20000 local boundary polygons; create a polygon around the area
+// Export the image, specifying scale and region.
+Export.image.toDrive({
+  image: SPI.clip(AOI),
+  description: 'SPI_Indonesiatiff',
+  scale: 90,
+  maxPixels: 1e10,
+  region: AOI
+});
+*/
+
+
