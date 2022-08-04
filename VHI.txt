@@ -1,0 +1,87 @@
+//importing lst and ndvi images
+var lst = ee.ImageCollection("MODIS/006/MOD11A2")
+var ndvi = ee.ImageCollection("MODIS/006/MOD13A1")
+
+//defining the date ranges
+var NDVIfilt = ndvi.select('NDVI').filterDate('2001-01-01', '2001-01-31').filterBounds(AOI)
+var LSTfilt = lst.select('LST_Day_1km').filterDate('2001-01-01', '2001-01-31').filterBounds(AOI)
+
+var NDVI = NDVIfilt.map(function(img){
+  return img.multiply(0.0001)
+  .copyProperties(img,['system:time_start']);
+});
+
+var LST = LSTfilt.map(function(img){
+  return img.multiply(0.02).subtract(273.15)
+  .copyProperties(img,['system:time_start']);
+});
+
+//calculating VCI using map functions
+var VCI = NDVI.map(function(image){
+  var Xmin = NDVI.reduce(ee.Reducer.min())
+  var Xmax =NDVI.reduce(ee.Reducer.max()) 
+    return image.expression('(X-Xmin)/(Xmax-Xmin)*100',
+      {X: image,
+       Xmin: Xmin,
+       Xmax:Xmax
+        }).clip(AOI).rename('VCI')
+        .copyProperties(image, ['system:time_start'])
+        .set('date', image.date().format('YYYY_MM_dd'))
+})
+  
+var TCI = LST.map(function(image){
+  var Ymin = LST.reduce(ee.Reducer.min())
+  var Ymax =LST.reduce(ee.Reducer.max()) 
+    return image.expression('(Ymax-Y)/(Ymax-Ymin)*100',
+      {Y: image,
+       Ymin: Ymin,
+       Ymax:Ymax
+        }).clip(AOI).rename('TCI')
+        .copyProperties(image, ['system:time_start'])
+        .set('date', image.date().format('YYYY_MM_dd'))
+})
+
+//cliping calculated data to boundary
+VCI = VCI.mean().clip(AOI)
+TCI = TCI.mean().clip(AOI)
+
+//add data together
+var ab = VCI.addBands(TCI) 
+
+//calculating vhi
+var VHI= ab.expression('a/2 + b/2', {
+                 a: ab.select('VCI'),
+                 b: ab.select('TCI'),  
+                  }).divide(100).rename('VHI')
+
+var Zonal_VHI = VHI.reduceRegions(AOI, ee.Reducer.mean(), 90)
+var vhiVis = {
+  min: 0,
+  max: 1,
+  palette: ['0300ff', '418504', 'efff07', 'efff07', 'ff0303'],
+}
+
+Map.addLayer(VHI, vhiVis, 'VHI');
+
+// Export the FeatureCollection to a shp file.
+Export.table.toDrive({
+collection: Zonal_VHI,
+description:'VHI_Indonesia',
+fileFormat: 'GeoJSON'
+});
+
+/*
+//option for more than 20000 local boundary polygons; create a polygon around the area
+// Export the image, specifying scale and region.
+Export.image.toDrive({
+  image: VHI.clip(AOI),
+  description: 'VHI_Indonesiatiff',
+  scale: 90,
+  maxPixels: 1e10,
+  region: AOI
+});
+*/
+
+
+
+
