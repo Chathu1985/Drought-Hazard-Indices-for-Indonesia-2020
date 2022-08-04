@@ -64,7 +64,7 @@ var Zonal_VHI = VHI.reduceRegions(AOI, ee.Reducer.mean(), 90)
 var vhiVis = {
   min: 0,
   max: 1,
-  palette: ['0300ff', '418504', 'efff07', 'efff07', 'ff0303'],
+  palette: ['red', 'yellow', 'white', 'green', 'blue'],
 }
 
 Map.addLayer(VHI, vhiVis, 'VHI');
