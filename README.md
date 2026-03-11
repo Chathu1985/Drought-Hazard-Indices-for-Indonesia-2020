@@ -1,4 +1,4 @@
-# Cloud-based workflow for drought indicator calculation
+# Cloud-based workflow for drought indicators calculation
 
 This repository contains Google Earth Engine (GEE) JavaScript scripts developed as part of a cloud-based open-source workflow for calculating drought-related indicators.
 
